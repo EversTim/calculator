@@ -8,5 +8,7 @@ lazy val root = (project in file(".")).
       version      := "0.1.0-SNAPSHOT"
     )),
     name := "Calculator",
-    libraryDependencies += scalaTest % Test
+    libraryDependencies += scalaTest % Test,
+    libraryDependencies += "org.scala-lang.modules" % "scala-parser-combinators_2.11" % "1.0.4",
+	scalacOptions += "-feature"
   )

@@ -1,31 +1,90 @@
 package nl.sogyo.calculator
 
 import org.scalatest._
-import scala.util.{ Try, Success, Failure }
 
 class ParserSpec extends FlatSpec with Matchers {
-  "Parser" should "return 3 4 + on 3 + 4" in {
-    val output = Parser.parse("3 + 4")
-    output should be(Success(List(Number(3), Number(4), Plus)))
+  "A Parser" should "return Number(3) when given \"3\"" in {
+    val output = Parser("3")
+    output should be(Number(3))
   }
 
-  it should "fail on bladibla" in {
-    val output = Parser.parse("bladibla")
-    output.isFailure should be(true)
+  it should "return Number(40) when given \"40 \"" in {
+    val output = Parser("40 ")
+    output should be(Number(40))
   }
 
-  it should "return 3 4 - 5 + on 3 - 4 + 5" in {
-    val output = Parser.parse("3 - 4 + 5")
-    output should be(Success(List(Number(3), Number(4), Minus, Number(5), Plus)))
+  it should "return Number(-100) when given \" -100\"" in {
+    val output = Parser(" -100")
+    output should be(Number(-100))
   }
 
-  it should "return 3 4 2 1 - * + on 3 + 4 * ( 2 - 1 )" in {
-    val output = Parser.parse("3 + 4 * ( 2 - 1 )")
-    output should be(Success(List(Number(3), Number(4), Number(2), Number(1), Minus, Times, Plus)))
+  it should "return Number(-100.1) when given \" -100.1\"" in {
+    val output = Parser(" -100.1")
+    output should be(Number(-100.1))
   }
 
-  it should "return 3 4 2 * 1 5 - 2 3 ^ ^ / + on 3 + 4 * 2 / ( 1 - 5 ) ^ 2 ^ 3" in {
-    val output = Parser.parse("3 + 4 * 2 / ( 1 - 5 ) ^ 2 ^ 3")
-    output should be(Success(List(Number(3), Number(4), Number(2), Times, Number(1), Number(5), Minus, Number(2), Number(3), Power, Power, Divide, Plus)))
+  it should "return Plus(Number(-100), Number(3)) when given \"-100 + 3\"" in {
+    val output = Parser("-100 + 3")
+    output should be(Plus(Number(-100), Number(3)))
+  }
+
+  it should "return Plus(Number(-100), Number(3)) when given \"-100+3\"" in {
+    val output = Parser("-100+3")
+    output should be(Plus(Number(-100), Number(3)))
+  }
+
+  it should "return Plus(Number(3), Number(-100)) when given \"3+-100\"" in {
+    val output = Parser("3+-100")
+    output should be(Plus(Number(3), Number(-100)))
+  }
+
+  it should "return Plus(Plus(Number(1), Number(2)), Number(3)) when given \"1+2+3\"" in {
+    val output = Parser("1+2+3")
+    output should be(Plus(Plus(Number(1), Number(2)), Number(3)))
+  }
+
+  it should "return Plus(Minus(Number(1), Number(2)), Number(3)) when given \"1-2+3\"" in {
+    val output = Parser("1-2+3")
+    output should be(Plus(Minus(Number(1), Number(2)), Number(3)))
+  }
+
+  it should "return Minus(Number(1), Number(-2)) when given \"1--2\"" in {
+    val output = Parser("1--2")
+    output should be(Minus(Number(1), Number(-2)))
+  }
+
+  it should "return Times(Number(1), Number(-2)) when given \"1*-2\"" in {
+    val output = Parser("1*-2")
+    output should be(Times(Number(1), Number(-2)))
+  }
+
+  it should "return Divide(Number(1), Number(-2)) when given \"1/-2\"" in {
+    val output = Parser("1/-2")
+    output should be(Divide(Number(1), Number(-2)))
+  }
+
+  it should "return Plus(Times(Number(1), Number(2)), Times(Number(3), Number(4))) when given \"1*2+3* 4\"" in {
+    val output = Parser("1*2+3* 4")
+    output should be(Plus(Times(Number(1), Number(2)), Times(Number(3), Number(4))))
+  }
+
+  it should "return Plus(Plus(Number(1), Times(Number(2), Number(3))), Number(4)) when given \"1+2*3+4\"" in {
+    val output = Parser("1+2*3+4")
+    output should be(Plus(Plus(Number(1), Times(Number(2), Number(3))), Number(4)))
+  }
+
+  it should "return Times(Times(Number(1), Plus(Number(2), Number(3))), Number(4)) when given \"1*(2+3)* 4\"" in {
+    val output = Parser("1*(2+3)* 4")
+    output should be(Times(Times(Number(1), Plus(Number(2), Number(3))), Number(4)))
+  }
+
+  it should "return Power(Number(2), Power(Number(3), Number(4))) when given \"2 ^ 3 ^ 4\"" in {
+    val output = Parser("2^3^4")
+    output should be(Power(Number(2), Power(Number(3), Number(4))))
+  }
+  
+  it should "return Number(pi) when given PI" in {
+    val output = Parser("PI")
+    output should be(Number(math.Pi))
   }
 }

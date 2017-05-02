@@ -1,82 +1,41 @@
 package nl.sogyo.calculator
 
-import scala.collection._
-import scala.util.{ Try, Success, Failure }
+import scala.util.parsing.combinator._
 
-object Parser {
-  var nonNumberStack = List[Token]()
+object Parser extends RegexParsers {
+  def apply(input: String): Expression = parseAll(expr, input) match {
+    case Success(result, _) => result
+    case Failure(msg, _) => { println(msg); Empty }
+    case Error(msg, _) => { println(msg); Empty }
+  }
 
-  def parse(input: String): Try[Seq[Token]] = {
-    nonNumberStack = List[Operator]()
-    try {
-      Success(parseList(input.split(' ').toList))
-    } catch {
-      case e: Exception => Failure(e)
+  def expr = plusminus
+
+  def numberLike = number | literal
+  
+  def number: Parser[Expression] = """(-?[0-9]+(\.[0-9]+)?)""".r ^^ { x => Number(x.toDouble) }
+  
+  def literal: Parser[Expression] = """PI""".r ^^ { x => Number(math.Pi) }
+
+  def plusminus: Parser[Expression] = multiplydivide ~ rep("+" ~ multiplydivide | "-" ~ multiplydivide) ^^ {
+    case num ~ list => list.foldLeft(num) {
+      case (x, "+" ~ y) => Plus(x, y)
+      case (x, "-" ~ y) => Minus(x, y)
     }
   }
 
-  def handleOperator(o: Operator): Seq[Operator] = {
-    nonNumberStack match {
-      case Nil => addToStackAndReturnEmptyList(o)
-      case h :: t => h match {
-        case op: Operator => {
-          if ((o.isLeftAssociative && o.precedence <= op.precedence) || (!o.isLeftAssociative && o.precedence < op.precedence)) {
-            nonNumberStack = nonNumberStack.tail
-            op +: handleOperator(o)
-          } else addToStackAndReturnEmptyList(o)
-        }
-        case _ => addToStackAndReturnEmptyList(o)
-      }
+  def multiplydivide: Parser[Expression] = power ~ rep("*" ~ power | "/" ~ power) ^^ {
+    case num ~ list => list.foldLeft(num) {
+      case (x, "*" ~ y) => Times(x, y)
+      case (x, "/" ~ y) => Divide(x, y)
     }
   }
 
-  def addToStackAndReturnEmptyList(o: Operator): Seq[Operator] = {
-    nonNumberStack = o +: nonNumberStack
-    Nil
-  }
-
-  private def parseList(lst: List[String]): Seq[Token] = {
-    lst match {
-      case x :: xs => {
-        val tkn = Token(x)
-        tkn match {
-          case Success(t) => {
-            t match {
-              case n: Number => t +: parseList(xs)
-              case o: Operator => {
-                handleOperator(o) ++ parseList(xs)
-              }
-              case p: Parens => p match {
-                case LeftParens => {
-                  nonNumberStack = p +: nonNumberStack
-                  parseList(xs)
-                }
-                case rightParens => {
-                  popStackUntilLeftParens ++ parseList(xs)
-                }
-              }
-            }
-          }
-          case Failure(t) => throw t
-        }
-      }
-      case _ => nonNumberStack
+  def power: Parser[Expression] = rep(parens ~ "^") ~ parens ^^ {
+    case list ~ num => list.foldRight(num) {
+      case (x ~ "^", y) => Power(x, y)
     }
   }
 
-  private def popStackUntilLeftParens: Seq[Token] = {
-    nonNumberStack match {
-      case t :: ts => t match {
-        case LeftParens => {
-          nonNumberStack = ts
-          Nil
-        }
-        case _ => {
-          nonNumberStack = ts
-          t +: popStackUntilLeftParens
-        }
-      }
-      case _ => throw new exceptions.MismatchedParenthesesException()
-    }
-  }
+  def parens: Parser[Expression] = numberLike | ("(" ~> plusminus <~ ")")
 }
