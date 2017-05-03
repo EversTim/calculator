@@ -53,6 +53,14 @@ class ExpressionSpec extends FlatSpec with Matchers {
   }
 
   it should "return 5 on \"x\" with x=5" in {
-    Expression("x").value(Map("x" -> 5)).get should be(5)
+    Expression("x").value(Map("x" -> Number(5))).get should be(5)
+  }
+
+  it should "return 15 on \"2x +5\" with x=5" in {
+    Expression("2x + 5").value(Map("x" -> Number(5))).get should be(15)
+  }
+
+  it should "return 15 on \"2x +5\" with x=2+3" in {
+    Expression("2x + 5").value(Map("x" -> Expression("2+3"))).get should be(15)
   }
 }

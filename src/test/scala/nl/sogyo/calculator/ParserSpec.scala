@@ -163,13 +163,22 @@ class ParserSpec extends FlatSpec with Matchers {
     output should be(Times(Plus(Number(2), Number(3)), Number(1)))
   }
 
+  it should "give the same result on (2+3)4 as on (2+3) * 4" in {
+    Expression("(2+3)4") should be(Expression("(2+3)*4"))
+  }
+
   it should "return Variable(\"x\") when given \"x\"" in {
     val output = ExpressionParser("x")
     output should be(Variable("x"))
   }
-  
+
   it should "return Times(Number(2), Variable(\"x\")) when given \"2x\"" in {
     val output = ExpressionParser("2x")
     output should be(Times(Number(2), Variable("x")))
+  }
+
+  it should "return Times(Divide(Number(1), Number(2)), Number(math.Pi)) when given \"1/2PI\"" in {
+    val output = Expression("1/2PI")
+    output should be(Times(Divide(Number(1), Number(2)), Number(math.Pi)))
   }
 }
