@@ -28,7 +28,8 @@ object ExpressionParser extends RegexParsers {
 
   def text = function | literal | parens | variable
 
-  def numberLike = literal | number | variable
+  // UNUSED
+  // def numberLike = literal | number | variable
 
   def plusMinus: Parser[Expression] = multiplyDivide ~ rep("+" ~ multiplyDivide | "-" ~ multiplyDivide) ^^ {
     case num ~ list => list.foldLeft(num) {
@@ -37,7 +38,13 @@ object ExpressionParser extends RegexParsers {
     }
   }
 
-  def multiplyDivide: Parser[Expression] = implicitMultiplication | explicitMultiplicationDivision
+  // Breaks a-b, tries to make it a*(-b)
+  def multiplyDivide: Parser[Expression] = (implicitMultiplication | explicitMultiplicationDivision) ~
+  rep(implicitMultiplication | explicitMultiplicationDivision) ^^ {
+    case expr ~ list => list.foldLeft(expr) {
+      case (x, y) => Times(x, y)
+    }
+  }
 
   def explicitMultiplicationDivision: Parser[Expression] = power ~ rep("*" ~ power | "/" ~ power) ^^ {
     case num ~ list => list.foldLeft(num) {

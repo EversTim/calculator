@@ -181,4 +181,8 @@ class ParserSpec extends FlatSpec with Matchers {
     val output = Expression("1/2PI")
     output should be(Times(Divide(Number(1), Number(2)), Number(math.Pi)))
   }
+  it should "return Times(Times(Number(1), Number(2)), Number(math.Pi)) when given \"1*2PI\"" in {
+    val output = Expression("1*2PI")
+    output should be(Times(Times(Number(1), Number(2)), Number(math.Pi)))
+  }
 }
