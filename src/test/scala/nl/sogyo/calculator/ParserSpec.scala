@@ -82,9 +82,34 @@ class ParserSpec extends FlatSpec with Matchers {
     val output = Parser("2^3^4")
     output should be(Power(Number(2), Power(Number(3), Number(4))))
   }
-  
+
   it should "return Number(pi) when given PI" in {
     val output = Parser("PI")
     output should be(Number(math.Pi))
+  }
+
+  it should "return Number(e) when given E" in {
+    val output = Parser("E")
+    output should be(Number(math.E))
+  }
+
+  it should "return Function(sin, \"sin\", Number(1)) when given sin(1)" in {
+    val output = Parser("sin(1)")
+    output should be(Function(math.sin, "sin", Number(1)))
+  }
+
+  it should "return Function(exp, \"exp\", Number(1)) when given exp(1)" in {
+    val output = Parser("exp(1)")
+    output should be(Function(math.exp, "exp", Number(1)))
+  }
+
+  it should "return Times(Number(2), Function(sin, \"sin\", Number(1)) when given \"2sin(1)\"" in {
+    val output = Parser("2sin(1)")
+    output should be(Times(Number(2), Function(math.sin, "sin", Number(1))))
+  }
+  
+    it should "return Times(Number(2), Number(math.Pi)) when given \"2PI\"" in {
+    val output = Parser("2PI")
+    output should be(Times(Number(2), Number(math.Pi)))
   }
 }

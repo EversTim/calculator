@@ -1,1 +1,1 @@
-Trigonometric functions (general functions)
+Complex: tried, kinda worked, not nice. Retired for now.

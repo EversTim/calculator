@@ -1,4 +1,4 @@
-package nl.sogyo.calculator
+/*package nl.sogyo.calculator.retired
 
 import org.scalatest._
 
@@ -42,4 +42,4 @@ class ComplexSpec extends FlatSpec with Matchers {
   it should "be 2epi when 1epi is added to itself" in {
     (PolarComplex(1, math.Pi) + PolarComplex(1, math.Pi)) should be(PolarComplex(2, math.Pi))
   }
-}
+}*/
