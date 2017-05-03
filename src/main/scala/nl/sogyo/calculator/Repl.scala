@@ -6,12 +6,10 @@ import scala.annotation.tailrec
 
 object Repl {
   def main(args: Array[String]): Unit = {
-    println(Parser("(2+3)(4+5)"))
-    return
     if (args.length != 0) {
       val fullArgs = args.foldLeft("") { case (s, acc) => s + acc }
-      println(fullArgs)
-      tryPrint(Parser(fullArgs).value)
+      val eval = Expression(fullArgs)
+      tryPrint(eval.value)
     } else repl
   }
 
@@ -20,7 +18,7 @@ object Repl {
   def repl(): Unit = {
     val read = readLine("$: ")
     if (read == "exit") return
-    val eval = Parser(read)
+    val eval = Expression(read)
     tryPrint(eval.value)
     repl()
   }
