@@ -6,6 +6,8 @@ import scala.annotation.tailrec
 
 object Repl {
   def main(args: Array[String]): Unit = {
+    println(Parser("(2+3)(4+5)"))
+    return
     if (args.length != 0) {
       val fullArgs = args.foldLeft("") { case (s, acc) => s + acc }
       println(fullArgs)

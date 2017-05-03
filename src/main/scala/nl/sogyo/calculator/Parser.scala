@@ -16,9 +16,11 @@ object Parser extends RegexParsers {
 
   def number: Parser[Expression] = """(-?[0-9]+(\.[0-9]+)?)""".r ^^ { x => Number(x.toDouble) }
 
-  def text = function | literal | parens
+  def text = function | literal | parens //| variable
 
-  def literal: Parser[Expression] = number | """[A-Z]+""".r ^^ { x => Number(literals(x)) }
+  def numberLike = literal | number //| variable
+
+  def literal: Parser[Expression] = """[A-Z]+""".r ^^ { x => Number(literals(x)) }
 
   def plusMinus: Parser[Expression] = multiplyDivide ~ rep("+" ~ multiplyDivide | "-" ~ multiplyDivide) ^^ {
     case num ~ list => list.foldLeft(num) {
@@ -27,7 +29,7 @@ object Parser extends RegexParsers {
     }
   }
 
-  def multiplyDivide: Parser[Expression] = explicitMultiplication// | implicitMultiplication
+  def multiplyDivide: Parser[Expression] = implicitMultiplication | explicitMultiplication
 
   def explicitMultiplication: Parser[Expression] = power ~ rep("*" ~ power | "/" ~ power) ^^ {
     case num ~ list => list.foldLeft(num) {
@@ -36,19 +38,31 @@ object Parser extends RegexParsers {
     }
   }
 
-  def implicitMultiplication: Parser[Expression] = ((literal | text | power) ~ rep(text)) ^^ {
-    case num ~ list => list.foldLeft(num) {
-      case (x, y) => Times(x, y)
+  def implicitMultiplication: Parser[Expression] = {
+    def exprList = (text | number) ~ rep1(text) ^^ { case exprA ~ list => list.foldLeft(exprA) { case (x, y) => Times(x, y) } }
+    def listExpr = rep1(text) ~ number ^^ { case list ~ exprA => list.foldRight(exprA) { case (x, y) => Times(x, y) } }
+    def listExprList = rep1(text) ~ number ~ rep1(text) ^^ {
+      case listA ~ num ~ listB => listB.foldLeft(listA.foldRight(num) {
+        case (x, y) => Times(x, y)
+      }) {
+        case (x, y) => Times(x, y)
+      }
     }
+
+    listExprList | exprList | listExpr
   }
 
-  def power: Parser[Expression] = rep(parens ~ "^") ~ parens ^^ {
+  def power: Parser[Expression] = rep(recurse <~ "^") ~ recurse ^^ {
     case list ~ num => list.foldRight(num) {
-      case (x ~ "^", y) => Power(x, y)
+      case (x, y) => Power(x, y)
     }
   }
 
-  def parens: Parser[Expression] = literal | function | ("(" ~> plusMinus <~ ")")
+  def recurse = numberLike | parens | function
 
-  def function: Parser[Expression] = ("""[a-z]+\(""".r ~ plusMinus <~ ")") ^^ { case str ~ expr => Function(functions(str.init), str.init, expr) }
+  def parens: Parser[Expression] = ("(" ~> plusMinus <~ ")")
+
+  def function: Parser[Expression] = ("""[a-z]{2,}\(""".r ~ plusMinus <~ ")") ^^ { case str ~ expr => Function(functions(str.init), str.init, expr) }
+  
+  //def variable: Parser[Expression] = """[a-z]""".r ^^ (Variable(_))
 }

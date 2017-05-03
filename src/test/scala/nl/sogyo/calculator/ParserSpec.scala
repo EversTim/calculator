@@ -83,6 +83,11 @@ class ParserSpec extends FlatSpec with Matchers {
     output should be(Power(Number(2), Power(Number(3), Number(4))))
   }
 
+  it should "return Power(Number(2), Plus(Number(1), Number(2))) when given \"2^(1+2)\"" in {
+    val output = Parser("2^(1+2)")
+    output should be(Power(Number(2), Plus(Number(1), Number(2))))
+  }
+
   it should "return Number(pi) when given PI" in {
     val output = Parser("PI")
     output should be(Number(math.Pi))
@@ -107,9 +112,59 @@ class ParserSpec extends FlatSpec with Matchers {
     val output = Parser("2sin(1)")
     output should be(Times(Number(2), Function(math.sin, "sin", Number(1))))
   }
-  
-    it should "return Times(Number(2), Number(math.Pi)) when given \"2PI\"" in {
+
+  it should "return Times(Number(2), Number(math.Pi)) when given \"2PI\"" in {
     val output = Parser("2PI")
     output should be(Times(Number(2), Number(math.Pi)))
+  }
+
+  it should "return Times(Plus(Number(2), Number(3)), Plus(Number(4), Number(5))) when given \"(2+3)(4+5)\"" in {
+    val output = Parser("(2+3)(4+5)")
+    output should be(Times(Plus(Number(2), Number(3)), Plus(Number(4), Number(5))))
+  }
+
+  it should "return Times(Times(Plus(Number(2), Number(3)), Plus(Number(4), Number(5))), Plus(Number(6), Number(7))) when given \"(2+3)(4+5)(6+7)\"" in {
+    val output = Parser("(2+3)(4+5)(6+7)")
+    output should be(Times(Times(Plus(Number(2), Number(3)), Plus(Number(4), Number(5))), Plus(Number(6), Number(7))))
+  }
+
+  it should "return Times(Plus(Number(2), Number(3)), Function(sin, \"sin\", Number(1)) when given \"(2+3)sin(1)\"" in {
+    val output = Parser("(2+3)sin(1)")
+    output should be(Times(Plus(Number(2), Number(3)), Function(math.sin, "sin", Number(1))))
+  }
+
+  it should "return Times(Function(sin, \"sin\", Number(1), Plus(Number(2), Number(3))) when given \"sin(1)(2+3)\"" in {
+    val output = Parser("sin(1)(2+3)")
+    output should be(Times(Function(math.sin, "sin", Number(1)), Plus(Number(2), Number(3))))
+  }
+
+  it should "return Times(Number(1), Plus(Number(2), Number(3))) when given \"1(2+3)\"" in {
+    val output = Parser("1(2+3)")
+    output should be(Times(Number(1), Plus(Number(2), Number(3))))
+  }
+
+  it should "return Times(Times(Plus(Number(3), Number(4)), Number(1)), Plus(Number(2), Number(3))) when given \"(3+4)1(2+3)\"" in {
+    val output = Parser("(3+4)1(2+3)")
+    output should be(Times(Times(Plus(Number(3), Number(4)), Number(1)), Plus(Number(2), Number(3))))
+  }
+
+  it should "return Times(Times(Number(2), Number(3)), Number(4)) when given \"(2)3(4)\"" in {
+    val output = Parser("(2)3(4)")
+    output should be(Times(Times(Number(2), Number(3)), Number(4)))
+  }
+
+  it should "return Times(Times(Number(2), Number(3)), Number(4)) when given \"(2)(3)(4)\"" in {
+    val output = Parser("(2)(3)(4)")
+    output should be(Times(Times(Number(2), Number(3)), Number(4)))
+  }
+
+  it should "return Times(Plus(Number(2), Number(3)), Number(1)) when given \"(2+3)1\"" in {
+    val output = Parser("(2+3)1")
+    output should be(Times(Plus(Number(2), Number(3)), Number(1)))
+  }
+
+  it should "return Variable(\"x\") when given \"x\"" in {
+    val output = Parser("x")
+    output should be(Variable("x"))
   }
 }

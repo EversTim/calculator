@@ -56,6 +56,12 @@ case class Power(left: Expression, right: Expression) extends Expression with Bi
   override def toString = super.toString + "^"
 }
 
+case class Variable(name: String) extends Expression {
+  def value = Failure(new exceptions.VariableValueException("A variable does not have a value!"))
+  
+  override def toString = name
+}
+
 case object Empty extends Expression {
   def value = Failure(new exceptions.EmptyExpressionValueException("An empty expression has no value!"))
   override def toString = "EMPTY"
