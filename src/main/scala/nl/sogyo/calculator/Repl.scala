@@ -5,23 +5,26 @@ import scala.io.StdIn.readLine
 import scala.annotation.tailrec
 
 object Repl {
-  
+
   var variables: Map[Variable, Expression] = Map()
-  
+
   def main(args: Array[String]): Unit = {
     if (args.length != 0) {
       val fullArgs = args.foldLeft("") { case (s, acc) => s + acc }
-      val eval = Command(fullArgs)
-      checkCommand(eval)
+      evaluate(fullArgs)
     } else repl
+  }
+
+  def evaluate(read: String): Unit = {
+    val eval = Command(read)
+    checkCommand(eval)
   }
 
   // SBT bug: doesn't show input
   @tailrec
   def repl(): Unit = {
-    val read = readLine("$: ")
-    val eval = Command(read)
-    checkCommand(eval)
+    val read = readLine("^_^ ")
+    evaluate(read)
     repl()
   }
 
@@ -34,10 +37,11 @@ object Repl {
     case Exit => System.exit(0)
     case SimpleExpression(expr) => tryPrintValue(expr.value(variables))
     case SetVariable(v, expr) => variables = variables + (v -> expr)
+    case PrintRPN(expr) => println(expr.toString)
   }
 
   def tryPrintValue(input: Try[Double]): Unit = println(input match {
     case Success(v) => v
-    case Failure(t) => t.getStackTrace()
+    case Failure(t) => t.getMessage()
   })
 }

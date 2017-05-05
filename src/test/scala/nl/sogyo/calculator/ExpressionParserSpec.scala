@@ -53,9 +53,9 @@ class ExpressionParserSpec extends FlatSpec with Matchers {
     output.get should be(Minus(Number(1), Number(-2)))
   }
 
-  it should "return Times(Number(1), Number(-2)) when given \"1*-2\"" in {
+  it should "return Multiply(Number(1), Number(-2)) when given \"1*-2\"" in {
     val output = ExpressionParser("1*-2")
-    output.get should be(Times(Number(1), Number(-2)))
+    output.get should be(Multiply(Number(1), Number(-2)))
   }
 
   it should "return Divide(Number(1), Number(-2)) when given \"1/-2\"" in {
@@ -63,19 +63,19 @@ class ExpressionParserSpec extends FlatSpec with Matchers {
     output.get should be(Divide(Number(1), Number(-2)))
   }
 
-  it should "return Plus(Times(Number(1), Number(2)), Times(Number(3), Number(4))) when given \"1*2+3* 4\"" in {
+  it should "return Plus(Multiply(Number(1), Number(2)), Multiply(Number(3), Number(4))) when given \"1*2+3* 4\"" in {
     val output = ExpressionParser("1*2+3* 4")
-    output.get should be(Plus(Times(Number(1), Number(2)), Times(Number(3), Number(4))))
+    output.get should be(Plus(Multiply(Number(1), Number(2)), Multiply(Number(3), Number(4))))
   }
 
-  it should "return Plus(Plus(Number(1), Times(Number(2), Number(3))), Number(4)) when given \"1+2*3+4\"" in {
+  it should "return Plus(Plus(Number(1), Multiply(Number(2), Number(3))), Number(4)) when given \"1+2*3+4\"" in {
     val output = ExpressionParser("1+2*3+4")
-    output.get should be(Plus(Plus(Number(1), Times(Number(2), Number(3))), Number(4)))
+    output.get should be(Plus(Plus(Number(1), Multiply(Number(2), Number(3))), Number(4)))
   }
 
-  it should "return Times(Times(Number(1), Plus(Number(2), Number(3))), Number(4)) when given \"1*(2+3)* 4\"" in {
+  it should "return Multiply(Multiply(Number(1), Plus(Number(2), Number(3))), Number(4)) when given \"1*(2+3)* 4\"" in {
     val output = ExpressionParser("1*(2+3)* 4")
-    output.get should be(Times(Times(Number(1), Plus(Number(2), Number(3))), Number(4)))
+    output.get should be(Multiply(Multiply(Number(1), Plus(Number(2), Number(3))), Number(4)))
   }
 
   it should "return Power(Number(2), Power(Number(3), Number(4))) when given \"2 ^ 3 ^ 4\"" in {
@@ -108,44 +108,44 @@ class ExpressionParserSpec extends FlatSpec with Matchers {
     output.get should be(Function(math.exp, "exp", Number(1)))
   }
 
-  it should "return Times(Number(2), Function(sin, \"sin\", Number(1)) when given \"2sin(1)\"" in {
+  it should "return Multiply(Number(2), Function(sin, \"sin\", Number(1)) when given \"2sin(1)\"" in {
     val output = ExpressionParser("2sin(1)")
-    output.get should be(Times(Number(2), Function(math.sin, "sin", Number(1))))
+    output.get should be(Multiply(Number(2), Function(math.sin, "sin", Number(1))))
   }
 
-  it should "return Times(Number(2), Number(math.Pi)) when given \"2PI\"" in {
+  it should "return Multiply(Number(2), Number(math.Pi)) when given \"2PI\"" in {
     val output = ExpressionParser("2PI")
-    output.get should be(Times(Number(2), Number(math.Pi)))
+    output.get should be(Multiply(Number(2), Number(math.Pi)))
   }
 
-  it should "return Times(Plus(Number(2), Number(3)), Plus(Number(4), Number(5))) when given \"(2+3)(4+5)\"" in {
+  it should "return Multiply(Plus(Number(2), Number(3)), Plus(Number(4), Number(5))) when given \"(2+3)(4+5)\"" in {
     val output = ExpressionParser("(2+3)(4+5)")
-    output.get should be(Times(Plus(Number(2), Number(3)), Plus(Number(4), Number(5))))
+    output.get should be(Multiply(Plus(Number(2), Number(3)), Plus(Number(4), Number(5))))
   }
 
-  it should "return Times(Times(Plus(Number(2), Number(3)), Plus(Number(4), Number(5))), Plus(Number(6), Number(7))) when given \"(2+3)(4+5)(6+7)\"" in {
+  it should "return Multiply(Multiply(Plus(Number(2), Number(3)), Plus(Number(4), Number(5))), Plus(Number(6), Number(7))) when given \"(2+3)(4+5)(6+7)\"" in {
     val output = ExpressionParser("(2+3)(4+5)(6+7)")
-    output.get should be(Times(Times(Plus(Number(2), Number(3)), Plus(Number(4), Number(5))), Plus(Number(6), Number(7))))
+    output.get should be(Multiply(Multiply(Plus(Number(2), Number(3)), Plus(Number(4), Number(5))), Plus(Number(6), Number(7))))
   }
 
-  it should "return Times(Plus(Number(2), Number(3)), Function(sin, \"sin\", Number(1)) when given \"(2+3)sin(1)\"" in {
+  it should "return Multiply(Plus(Number(2), Number(3)), Function(sin, \"sin\", Number(1)) when given \"(2+3)sin(1)\"" in {
     val output = ExpressionParser("(2+3)sin(1)")
-    output.get should be(Times(Plus(Number(2), Number(3)), Function(math.sin, "sin", Number(1))))
+    output.get should be(Multiply(Plus(Number(2), Number(3)), Function(math.sin, "sin", Number(1))))
   }
 
-  it should "return Times(Function(sin, \"sin\", Number(1), Plus(Number(2), Number(3))) when given \"sin(1)(2+3)\"" in {
+  it should "return Multiply(Function(sin, \"sin\", Number(1), Plus(Number(2), Number(3))) when given \"sin(1)(2+3)\"" in {
     val output = ExpressionParser("sin(1)(2+3)")
-    output.get should be(Times(Function(math.sin, "sin", Number(1)), Plus(Number(2), Number(3))))
+    output.get should be(Multiply(Function(math.sin, "sin", Number(1)), Plus(Number(2), Number(3))))
   }
 
-  it should "return Times(Number(1), Plus(Number(2), Number(3))) when given \"1(2+3)\"" in {
+  it should "return Multiply(Number(1), Plus(Number(2), Number(3))) when given \"1(2+3)\"" in {
     val output = ExpressionParser("1(2+3)")
-    output.get should be(Times(Number(1), Plus(Number(2), Number(3))))
+    output.get should be(Multiply(Number(1), Plus(Number(2), Number(3))))
   }
 
-  it should "return Times(Times(Number(2), Number(3)), Number(4)) when given \"(2)(3)(4)\"" in {
+  it should "return Multiply(Multiply(Number(2), Number(3)), Number(4)) when given \"(2)(3)(4)\"" in {
     val output = ExpressionParser("(2)(3)(4)")
-    output.get should be(Times(Times(Number(2), Number(3)), Number(4)))
+    output.get should be(Multiply(Multiply(Number(2), Number(3)), Number(4)))
   }
 
   it should "return Variable(\"x\") when given \"x\"" in {
@@ -153,30 +153,30 @@ class ExpressionParserSpec extends FlatSpec with Matchers {
     output.get should be(Variable("x"))
   }
 
-  it should "return Times(Number(2), Variable(\"x\")) when given \"2x\"" in {
+  it should "return Multiply(Number(2), Variable(\"x\")) when given \"2x\"" in {
     val output = ExpressionParser("2x")
-    output.get should be(Times(Number(2), Variable("x")))
+    output.get should be(Multiply(Number(2), Variable("x")))
   }
 
-  it should "return Times(Divide(Number(1), Number(2)), Number(math.Pi)) when given \"1/2PI\"" in {
+  it should "return Multiply(Divide(Number(1), Number(2)), Number(math.Pi)) when given \"1/2PI\"" in {
     val output = Expression("1/2PI")
-    output.get should be(Times(Divide(Number(1), Number(2)), Number(math.Pi)))
+    output.get should be(Multiply(Divide(Number(1), Number(2)), Number(math.Pi)))
   }
-  it should "return Times(Times(Number(1), Number(2)), Number(math.Pi)) when given \"1*2PI\"" in {
+  it should "return Multiply(Multiply(Number(1), Number(2)), Number(math.Pi)) when given \"1*2PI\"" in {
     val output = Expression("1*2PI")
-    output.get should be(Times(Times(Number(1), Number(2)), Number(math.Pi)))
+    output.get should be(Multiply(Multiply(Number(1), Number(2)), Number(math.Pi)))
   }
 
-  it should "return Variable(\"bla\") when given \"bla\"" in {
+  it should "return Multiply(Multiply(Variable(\"b\"), Variable(\"l\")), Variable(\"a\")) when given \"bla\"" in {
     val output = Expression("bla")
-    output.get should be(Variable("bla"))
+    output.get should be(Multiply(Multiply(Variable("b"), Variable("l")), Variable("a")))
   }
-  
+
   it should "return Number(0.5) when given \".5\"" in {
     val output = Expression(".5")
     output.get should be(Number(0.5))
   }
-  
+
   /* These tests are saved for historical reasons, and because they should be implemented in the future.
    * At the moment, they are not supported.
    * They concern implicit multiplication with numbers on the left.
@@ -187,24 +187,24 @@ class ExpressionParserSpec extends FlatSpec with Matchers {
     Expression("(2+3)4") should be(Expression("(2+3)*4"))
   }
   
-  it should "return Times(Plus(Number(2), Number(3)), Number(1)) when given \"(2+3)1\"" in {
+  it should "return Multiply(Plus(Number(2), Number(3)), Number(1)) when given \"(2+3)1\"" in {
     val output = ExpressionParser("(2+3)1")
-    output.get should be(Times(Plus(Number(2), Number(3)), Number(1)))
+    output.get should be(Multiply(Plus(Number(2), Number(3)), Number(1)))
   }
   
-  it should "return Times(Times(Number(2), Number(3)), Number(4)) when given \"(2)3(4)\"" in {
+  it should "return Multiply(Multiply(Number(2), Number(3)), Number(4)) when given \"(2)3(4)\"" in {
     val output = ExpressionParser("(2)3(4)")
-    output.get should be(Times(Times(Number(2), Number(3)), Number(4)))
+    output.get should be(Multiply(Multiply(Number(2), Number(3)), Number(4)))
   }
   
-  it should "return Times(Times(Plus(Number(3), Number(4)), Number(1)), Plus(Number(2), Number(3))) when given \"(3+4)1(2+3)\"" in {
+  it should "return Multiply(Multiply(Plus(Number(3), Number(4)), Number(1)), Plus(Number(2), Number(3))) when given \"(3+4)1(2+3)\"" in {
     val output = ExpressionParser("(3+4)1(2+3)")
-    output.get should be(Times(Times(Plus(Number(3), Number(4)), Number(1)), Plus(Number(2), Number(3))))
+    output.get should be(Multiply(Multiply(Plus(Number(3), Number(4)), Number(1)), Plus(Number(2), Number(3))))
   }
   
-  it should "return Times(Times(Number(2), Number(3)), Number(4)) when given \"(2)3*4\"" in {
+  it should "return Multiply(Multiply(Number(2), Number(3)), Number(4)) when given \"(2)3*4\"" in {
     val output = Expression("(2)3*4")
-    output.get should be(Times(Times(Number(2), Number(3)), Number(4)))
+    output.get should be(Multiply(Multiply(Number(2), Number(3)), Number(4)))
   }
   */
 }

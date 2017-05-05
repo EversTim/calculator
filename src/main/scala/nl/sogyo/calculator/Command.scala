@@ -12,4 +12,6 @@ case class SimpleExpression(expr: Expression) extends Command
 
 case class SetVariable(name: Variable, value: Expression) extends Command
 
+case class PrintRPN(expr: Expression) extends Command
+
 case object Exit extends Command

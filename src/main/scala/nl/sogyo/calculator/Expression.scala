@@ -17,9 +17,12 @@ object Expression {
 trait BinaryOperator {
   def left: Expression
   def right: Expression
+  def func: (Double, Double) => Double
 
   override def toString = left.toString + " " + right.toString + " "
 }
+
+trait CommutativeOperator
 
 case class Function(func: (Double => Double), stringRepresentation: String, expr: Expression) extends Expression {
   def value(vars: Map[Variable, Expression]): Try[Double] = for (e <- expr.value(vars)) yield func(e)
@@ -35,31 +38,48 @@ case class Function(func: (Double => Double), stringRepresentation: String, expr
 case class Number(num: Double) extends Expression {
   def value(vars: Map[Variable, Expression]): Try[Double] = Success(num)
   override def toString = num.toString
+
+  def optimize: Expression = this
 }
 
-case class Plus(left: Expression, right: Expression) extends Expression with BinaryOperator {
-  def value(vars: Map[Variable, Expression]): Try[Double] = for (l <- left.value(vars); r <- right.value(vars)) yield l + r
+case class Plus(left: Expression, right: Expression) extends Expression with BinaryOperator with CommutativeOperator {
+  def value(vars: Map[Variable, Expression]): Try[Double] = for (l <- left.value(vars); r <- right.value(vars)) yield func(l, r)
+
+  def func: (Double, Double) => Double = (x, y) => x + y
+
   override def toString = super.toString + "+"
 }
 
 case class Minus(left: Expression, right: Expression) extends Expression with BinaryOperator {
-  def value(vars: Map[Variable, Expression]): Try[Double] = for (l <- left.value(vars); r <- right.value(vars)) yield l - r
+  def value(vars: Map[Variable, Expression]): Try[Double] = for (l <- left.value(vars); r <- right.value(vars)) yield func(l, r)
+
+  def func: (Double, Double) => Double = (x, y) => x - y
+
   override def toString = super.toString + "-"
 }
 
-case class Times(left: Expression, right: Expression) extends Expression with BinaryOperator {
-  def value(vars: Map[Variable, Expression]): Try[Double] = for (l <- left.value(vars); r <- right.value(vars)) yield l * r
+case class Multiply(left: Expression, right: Expression) extends Expression with BinaryOperator {
+  def value(vars: Map[Variable, Expression]): Try[Double] = for (l <- left.value(vars); r <- right.value(vars)) yield func(l, r)
+
+  def func: (Double, Double) => Double = (x, y) => x * y
+
   override def toString = super.toString + "*"
 }
 
 case class Divide(left: Expression, right: Expression) extends Expression with BinaryOperator {
-  def value(vars: Map[Variable, Expression]): Try[Double] = for (l <- left.value(vars); r <- right.value(vars)) yield l / r
+  def value(vars: Map[Variable, Expression]): Try[Double] = for (l <- left.value(vars); r <- right.value(vars)) yield func(l, r)
+
+  def func: (Double, Double) => Double = (x, y) => x / y
+
   override def toString = super.toString + "/"
 }
 
 case class Power(left: Expression, right: Expression) extends Expression with BinaryOperator {
-  def value(vars: Map[Variable, Expression]): Try[Double] = for (l <- left.value(vars); r <- right.value(vars)) yield math.pow(l, r)
+  def value(vars: Map[Variable, Expression]): Try[Double] = for (l <- left.value(vars); r <- right.value(vars)) yield func(l, r)
+
   override def toString = super.toString + "^"
+
+  def func: (Double, Double) => Double = (x, y) => math.pow(x, y)
 }
 
 case class Variable(name: String) extends Expression {

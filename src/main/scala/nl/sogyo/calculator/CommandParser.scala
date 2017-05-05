@@ -6,11 +6,15 @@ import scala.util.Try
 
 trait CommandParser extends RegexParsers with ExpressionParser {
 
-  def cmd: Parser[Command] = exit | simpleExpression | setVariable
+  def cmd: Parser[Command] = keyword | setVariable | simpleExpression
 
-  def exit = "exit" ^^ { x => Exit }
+  def keyword: Parser[Command] = exit | print
 
-  def simpleExpression: Parser[SimpleExpression] = expr ^^ (x => SimpleExpression(x))
+  def exit: Parser[Command] = "exit" ^^ { x => Exit }
+  
+  def print: Parser[PrintRPN] = "print" ~> expr ^^ (PrintRPN(_)) 
+
+  def simpleExpression: Parser[SimpleExpression] = expr ^^ (SimpleExpression(_))
 
   def setVariable: Parser[SetVariable] = (variable ~ "=" ~ expr) ^^ { case v ~ "=" ~ e => SetVariable(v, e) }
 }

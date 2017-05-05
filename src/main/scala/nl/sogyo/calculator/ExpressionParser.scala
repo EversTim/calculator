@@ -22,7 +22,7 @@ trait ExpressionParser extends RegexParsers {
 
   def function: Parser[Function] = ("""[a-z]{2,}\(""".r ~ plusMinus <~ ")") ^^ { case str ~ expr => Function(functions(str.init), str.init, expr) }
 
-  def variable: Parser[Variable] = """[a-z]+""".r ^^ (Variable(_))
+  def variable: Parser[Variable] = """[a-z]""".r ^^ (Variable(_))
 
   def text = function | literal | parens | variable
 
@@ -39,9 +39,9 @@ trait ExpressionParser extends RegexParsers {
 
   def multiplyDivideExplicitAndImplicitRight: Parser[Expression] = power ~ rep("*" ~ power | "/" ~ power | "" ~ text) ^^ {
     case num ~ list => list.foldLeft(num) {
-      case (x, "*" ~ y) => Times(x, y)
+      case (x, "*" ~ y) => Multiply(x, y)
       case (x, "/" ~ y) => Divide(x, y)
-      case (x, "" ~ y) => Times(x, y)
+      case (x, "" ~ y) => Multiply(x, y)
     }
   }
 
