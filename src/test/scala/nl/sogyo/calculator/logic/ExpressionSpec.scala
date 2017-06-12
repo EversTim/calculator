@@ -1,7 +1,6 @@
-package nl.sogyo.calculator
+package nl.sogyo.calculator.logic
 
 import org.scalatest._
-import scala.util.{ Try, Success, Failure }
 
 class ExpressionSpec extends FlatSpec with Matchers {
   "An Expression" should "return the value.get 3 when it equals Number(3)" in {

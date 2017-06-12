@@ -1,8 +1,7 @@
-package nl.sogyo.calculator
+package nl.sogyo.calculator.logic
 
 import scala.util.parsing.combinator._
-
-import scala.util.Try
+import scala.util.{Try, Success, Failure}
 
 trait CommandParser extends RegexParsers with ExpressionParser {
 
@@ -11,10 +10,10 @@ trait CommandParser extends RegexParsers with ExpressionParser {
   def keyword: Parser[Command] = exit | print
 
   def exit: Parser[Command] = "exit" ^^ { x => Exit }
-  
-  def print: Parser[PrintRPN] = "print" ~> expr ^^ (PrintRPN(_)) 
 
-  def simpleExpression: Parser[SimpleExpression] = expr ^^ (SimpleExpression(_))
+  def print: Parser[PrintRPN] = "print(" ~> expr <~ ")" ^^ PrintRPN
+
+  def simpleExpression: Parser[SimpleExpression] = expr ^^ SimpleExpression
 
   def setVariable: Parser[SetVariable] = (variable ~ "=" ~ expr) ^^ { case v ~ "=" ~ e => SetVariable(v, e) }
 }

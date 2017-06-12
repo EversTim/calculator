@@ -1,8 +1,7 @@
-package nl.sogyo.calculator
+package nl.sogyo.calculator.logic
 
 import scala.util.parsing.combinator._
-
-import scala.util.Try
+import scala.util.{Try, Success, Failure}
 
 trait ExpressionParser extends RegexParsers {
   def literals: Map[String, Double] = Map("PI" -> math.Pi, "E" -> math.E)
@@ -14,7 +13,7 @@ trait ExpressionParser extends RegexParsers {
 
   def numberWithOnlyFractionalPart: Parser[Number] = """-?.[0-9]+""".r ^^ { x => Number(x.toDouble) }
 
-  def number: Parser[Expression] = numberWithIntegerPart | numberWithOnlyFractionalPart
+  def number: Parser[Number] = numberWithIntegerPart | numberWithOnlyFractionalPart
 
   def literal: Parser[Number] = """[A-Z]+""".r ^^ { x => Number(literals(x)) }
 

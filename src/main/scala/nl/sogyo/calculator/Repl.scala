@@ -3,6 +3,7 @@ package nl.sogyo.calculator
 import scala.util.{ Try, Success, Failure }
 import scala.io.StdIn.readLine
 import scala.annotation.tailrec
+import nl.sogyo.calculator.logic._
 
 object Repl {
 
@@ -12,7 +13,7 @@ object Repl {
     if (args.length != 0) {
       val fullArgs = args.foldLeft("") { case (s, acc) => s + acc }
       evaluate(fullArgs)
-    } else repl
+    } else repl()
   }
 
   def evaluate(read: String): Unit = {
@@ -30,7 +31,7 @@ object Repl {
 
   def checkCommand(tCmd: Try[Command]): Unit = tCmd match {
     case Success(cmd) => execute(cmd)
-    case Failure(t) => println(t.getMessage())
+    case Failure(t) => println(t.getMessage)
   }
 
   def execute(cmd: Command): Unit = cmd match {
@@ -42,6 +43,6 @@ object Repl {
 
   def tryPrintValue(input: Try[Double]): Unit = println(input match {
     case Success(v) => v
-    case Failure(t) => t.getMessage()
+    case Failure(t) => t.getMessage
   })
 }

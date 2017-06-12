@@ -1,6 +1,6 @@
-package nl.sogyo.calculator
+package nl.sogyo.calculator.logic
 
-import scala.util.{Try, Success, Failure}
+import scala.util.Try
 
 trait Command
 
